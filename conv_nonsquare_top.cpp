@@ -38,6 +38,7 @@
  *  HLS Top function with a single convolutional layer for unit testing
  *
  *****************************************************************************/
+#define AP_INT_MAX_W 16384
 #include <hls_stream.h>
 using namespace hls;
 #include "ap_int.h"

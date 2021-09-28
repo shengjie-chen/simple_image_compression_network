@@ -192,8 +192,8 @@ int test_conv2d_layer0()
 	}
 
 
-	conv2d_layer0(input_stream, output_stream, MAX_IMAGES);
-	std::cout << "Hardware computation complete. " << std::endl;
+
+	std::cout << "Verification computation begin. " << std::endl;
 
 	conv_nonsquare<MAX_IMAGES,CONV_0_IFM_ROW+2*CONV_0_P,CONV_0_IFM_COL+2*CONV_0_P,CONV_0_OFM_ROW,CONV_0_OFM_COL,CONV_0_IFM_CH,CONV_0_OFM_CH, CONV_0_K, CONV_0_K, CONV_0_S, CONV_0_S, ap_uint<CONV_0_IN_BIT>, ap_int<CONV_0_OUT_BIT>, ap_int<CONV_0_W_BIT> >(IMAGE, W1, TEST);
 	
@@ -214,11 +214,12 @@ int test_conv2d_layer0()
 			}
 		}
 	}
-	std::cout << "Verification computation complete. " << std::endl;
+	std::cout << "Verification computation complete. Hardware computation begin." << std::endl;
 
 
 //	Testbench_conv_nonsquare(input_stream, output_stream, MAX_IMAGES);
-
+	conv2d_layer0(input_stream, output_stream, MAX_IMAGES);
+	std::cout << "Hardware computation complete.  " << std::endl;
 
 	std::cout << "Output image size is " << CONV_0_OFM_ROW << " X " << CONV_0_OFM_COL << " X " << CONV_0_OFM_CH << std::endl;
 
@@ -396,9 +397,9 @@ int test_deconv2d_layer4()
 	//		}
 	//	}
 	//}
-
-	conv_nonsquare<MAX_IMAGES, 2 * CONV_4_IFM_ROW + 2 * CONV_4_P, 2 * CONV_4_IFM_COL + 2 * CONV_4_P, 
-		CONV_4_OFM_ROW, CONV_4_OFM_COL, CONV_4_IFM_CH, CONV_4_OFM_CH, CONV_4_K, CONV_4_K, 1, 1, 
+	std::cout << "Verification computation begin. " << std::endl;
+	conv_nonsquare<MAX_IMAGES, 2 * CONV_4_IFM_ROW + 2 * CONV_4_P, 2 * CONV_4_IFM_COL + 2 * CONV_4_P,
+		CONV_4_OFM_ROW, CONV_4_OFM_COL, CONV_4_IFM_CH, CONV_4_OFM_CH, CONV_4_K, CONV_4_K, 1, 1,
 		ap_uint<CONV_4_IN_BIT>, ap_int<CONV_4_OUT_BIT>, ap_int<CONV_4_W_BIT> >
 		(IMAGE, W1, TEST);
 
@@ -416,11 +417,11 @@ int test_deconv2d_layer4()
 			}
 		}
 	}
-
-
+	std::cout << "Verification computation complete. Hardware computation begin." << std::endl;
 
 	//	Testbench_conv_nonsquare(input_stream, output_stream, MAX_IMAGES);
 	deconv2d_layer4(input_stream, output_stream, MAX_IMAGES);
+	std::cout << "Hardware computation complete.  " << std::endl;
 
 	std::cout << "Output image size is " << CONV_4_OFM_ROW << " X " << CONV_4_OFM_COL << " X " << CONV_4_OFM_CH << std::endl;
 
@@ -504,8 +505,8 @@ int test_deconv2d_layer4()
 }
 
 int main(){
-	return test_conv2d_layer0();
-	//return test_deconv2d_layer4();
+//	return test_conv2d_layer0();
+	return test_deconv2d_layer4();
 }
 
 
