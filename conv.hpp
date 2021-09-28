@@ -116,8 +116,8 @@ template<int MAX_IMAGE,
 
 						out[n][x][y][h] = tmp;
 					}
-					std::cout << y * OFMDim_x + x << "/98304 pixel complete. " << std::endl;
-				}
+					std::cout << y * OFMDim_x << "/98304 pixel complete. " << std::endl;
+			}
 	}
 
 

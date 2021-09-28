@@ -212,7 +212,7 @@ unsigned INPUT_PRECISION ,
 unsigned TILE1 , 
 unsigned ACTIVATION_PRECISION >
 void conv2d(
-	FixedPointWeights<SIMD1, ap_int<SIMD1 * WIDTH>, PE1, TILE1> const &weights,
+	FixedPointWeights<SIMD1, ap_int<WIDTH>, PE1, TILE1> const &weights,
 	FixedPointWeights<1, ap_int<8>, 1, OFM_Channels1> const &bias, 
 	stream<ap_uint<IFM_Channels1*INPUT_PRECISION> > & in, 
 	stream<ap_uint<OFM_Channels1*ACTIVATION_PRECISION> > & out, 
