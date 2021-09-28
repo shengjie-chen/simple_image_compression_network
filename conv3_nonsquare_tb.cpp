@@ -65,7 +65,7 @@ using namespace std;
 #define MAX_IMAGES 1
 //void Testbench_conv_nonsquare(stream<ap_uint<CONV_0_IFM_CH*CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_0_OFM_CH*CONV_0_OUT_BIT> > & out, unsigned int numReps);
 
-void conv2d_layer1(stream<ap_uint<CONV_0_IFM_CH*CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_0_OFM_CH*CONV_0_OUT_BIT> > & out, unsigned int numReps);
+void conv2d_layer0(stream<ap_uint<CONV_0_IFM_CH*CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_0_OFM_CH*CONV_0_OUT_BIT> > & out, unsigned int numReps);
 
 void CONV_0_P2(stream<ap_uint<CONV_0_IFM_CH*CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_0_IFM_CH*CONV_0_IN_BIT> > & out);
 
@@ -192,7 +192,7 @@ int test_conv2d_layer0()
 	}
 
 
-	conv2d_layer1(input_stream, output_stream, MAX_IMAGES);
+	conv2d_layer0(input_stream, output_stream, MAX_IMAGES);
 	std::cout << "Hardware computation complete. " << std::endl;
 
 	conv_nonsquare<MAX_IMAGES,CONV_0_IFM_ROW+2*CONV_0_P,CONV_0_IFM_COL+2*CONV_0_P,CONV_0_OFM_ROW,CONV_0_OFM_COL,CONV_0_IFM_CH,CONV_0_OFM_CH, CONV_0_K, CONV_0_K, CONV_0_S, CONV_0_S, ap_uint<CONV_0_IN_BIT>, ap_int<CONV_0_OUT_BIT>, ap_int<CONV_0_W_BIT> >(IMAGE, W1, TEST);

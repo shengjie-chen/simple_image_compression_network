@@ -277,7 +277,7 @@ void conv2d(
 
 }
 
-void conv2d_layer1(stream<ap_uint<CONV_0_IFM_CH* CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_0_OFM_CH* CONV_0_OUT_BIT> > & out, unsigned int numReps){
+void conv2d_layer0(stream<ap_uint<CONV_0_IFM_CH* CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_0_OFM_CH* CONV_0_OUT_BIT> > & out, unsigned int numReps){
 	conv2d< CONV_0_K, CONV_0_K, CONV_0_SIMD, CONV_0_PE,
 		CONV_0_W_BIT, CONV_0_IFM_CH, CONV_0_OFM_CH, CONV_0_IFM_ROW, CONV_0_IFM_COL, CONV_0_OFM_ROW, CONV_0_OFM_COL,
 		CONV_0_S, CONV_0_S, CONV_0_P, CONV_0_IN_BIT, CONV_0_W_TILES, CONV_0_OUT_BIT>(PARAM::weights_layer0, PARAM::bias_layer0, in, out, numReps);
