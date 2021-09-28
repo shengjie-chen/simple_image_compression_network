@@ -104,8 +104,8 @@ template<int MAX_IMAGE,
 	typename TW>
 	void conv_nonsquare(TI const img[MAX_IMAGE][IFMDim_x][IFMDim_y][IFMCh], TW const weights[OFMCh][kernel_x][kernel_y][IFMCh], TO out[MAX_IMAGE][OFMDim_x][OFMDim_y][OFMCh]){
 		for(int n=0;n<MAX_IMAGE;n++)
-			for(int y=0;y<OFMDim_y;y++)
-				for(int x=0;x<OFMDim_x;x++){
+			for(int y=0;y<OFMDim_y;y++){
+				for(int x=0;x<OFMDim_x;x++)
 					for(int h=0;h<OFMCh;h++){
 						TO tmp = 0;
 						for (int ky=0;ky<kernel_y;ky++)
