@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<autopilotfilemapping:AutoPilotFileMapping xmlns:autopilotfilemapping="www.autoesl.com/autopilotfilemapping">
-  <source>
-    <originFiles name="conv_nonsquare_top.cpp" path="/SSD/csj/image_compression/csj_net_achieve/conv_nonsquare_top.cpp"/>
-  </source>
-  <testbench>
-    <originFiles name="conv3_nonsquare_tb.cpp" path="/SSD/csj/image_compression/csj_net_achieve/conv3_nonsquare_tb.cpp"/>
-  </testbench>
-</autopilotfilemapping:AutoPilotFileMapping>
