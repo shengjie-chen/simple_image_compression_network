@@ -290,6 +290,72 @@ void deconv2d_layer4(stream<ap_uint<CONV_4_IFM_CH* CONV_4_IN_BIT> >& in, stream<
 }
 
 
+
+void eight_layers_net(stream<ap_uint<CONV_0_IFM_CH* CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_7_OFM_CH* CONV_7_OUT_BIT> > & out, unsigned int numReps) {
+
+	hls::stream<ap_uint<CONV_0_OUT_BIT* CONV_0_OFM_CH>>  conv_0_out("conv_0_out");
+	conv2d< CONV_0_K, CONV_0_K, CONV_0_SIMD, CONV_0_PE,
+		CONV_0_W_BIT, CONV_0_IFM_CH, CONV_0_OFM_CH, CONV_0_IFM_ROW, CONV_0_IFM_COL, CONV_0_OFM_ROW, CONV_0_OFM_COL,
+		CONV_0_S, CONV_0_S, CONV_0_P, CONV_0_IN_BIT, CONV_0_W_TILES, CONV_0_OUT_BIT>(PARAM::weights_layer0, PARAM::bias_layer0, in, conv_0_out, numReps);
+#ifdef DEBUG
+	cout << "layer0 calculation completes. conv_0_out size: " << conv_0_out.size() << endl;
+#endif
+
+	hls::stream<ap_uint<CONV_1_OUT_BIT* CONV_1_OFM_CH>>  conv_1_out("conv_1_out");
+	conv2d< CONV_1_K, CONV_1_K, CONV_1_SIMD, CONV_1_PE,
+		CONV_1_W_BIT, CONV_1_IFM_CH, CONV_1_OFM_CH, CONV_1_IFM_ROW, CONV_1_IFM_COL, CONV_1_OFM_ROW, CONV_1_OFM_COL,
+		CONV_1_S, CONV_1_S, CONV_1_P, CONV_1_IN_BIT, CONV_1_W_TILES, CONV_1_OUT_BIT>(PARAM::weights_layer1, PARAM::bias_layer1, conv_0_out, conv_1_out, numReps);
+#ifdef DEBUG
+	cout << "layer1 calculation completes. conv_1_out size: " << conv_1_out.size() << endl;
+#endif
+
+	hls::stream<ap_uint<CONV_2_OUT_BIT* CONV_2_OFM_CH>>  conv_2_out("conv_2_out");
+	conv2d< CONV_2_K, CONV_2_K, CONV_2_SIMD, CONV_2_PE,
+		CONV_2_W_BIT, CONV_2_IFM_CH, CONV_2_OFM_CH, CONV_2_IFM_ROW, CONV_2_IFM_COL, CONV_2_OFM_ROW, CONV_2_OFM_COL,
+		CONV_2_S, CONV_2_S, CONV_2_P, CONV_2_IN_BIT, CONV_2_W_TILES, CONV_2_OUT_BIT>(PARAM::weights_layer2, PARAM::bias_layer2, conv_1_out, conv_2_out, numReps);
+#ifdef DEBUG
+	cout << "layer2 calculation completes. conv_2_out size: " << conv_2_out.size() << endl;
+#endif
+
+	hls::stream<ap_uint<CONV_3_OUT_BIT* CONV_3_OFM_CH>>  conv_3_out("conv_3_out");
+	conv2d< CONV_3_K, CONV_3_K, CONV_3_SIMD, CONV_3_PE,
+		CONV_3_W_BIT, CONV_3_IFM_CH, CONV_3_OFM_CH, CONV_3_IFM_ROW, CONV_3_IFM_COL, CONV_3_OFM_ROW, CONV_3_OFM_COL,
+		CONV_3_S, CONV_3_S, CONV_3_P, CONV_3_IN_BIT, CONV_3_W_TILES, CONV_3_OUT_BIT>(PARAM::weights_layer3, PARAM::bias_layer3, conv_2_out, conv_3_out, numReps);
+#ifdef DEBUG
+	cout << "layer3 calculation completes. conv_3_out size: " << conv_3_out.size() << endl;
+#endif
+
+	hls::stream<ap_uint<CONV_4_OUT_BIT* CONV_4_OFM_CH>>  conv_4_out("conv_4_out");
+	deconv522<CONV_4_IFM_ROW, CONV_4_IFM_COL, CONV_4_IFM_CH, CONV_4_OFM_CH, CONV_4_SIMD, CONV_4_PE, CONV_4_IN_BIT, CONV_4_OUT_BIT, CONV_4_W_BIT, CONV_4_W_TILES>
+		(PARAM::weights_layer4, PARAM::bias_layer4, conv_3_out, conv_4_out, numReps);
+#ifdef DEBUG
+	cout << "layer4 calculation completes. conv_4_out size: " << conv_4_out.size() << endl;
+#endif
+
+	hls::stream<ap_uint<CONV_5_OUT_BIT* CONV_5_OFM_CH>>  conv_5_out("conv_5_out");
+	deconv522<CONV_5_IFM_ROW, CONV_5_IFM_COL, CONV_5_IFM_CH, CONV_5_OFM_CH, CONV_5_SIMD, CONV_5_PE, CONV_5_IN_BIT, CONV_5_OUT_BIT, CONV_5_W_BIT, CONV_5_W_TILES>
+		(PARAM::weights_layer5, PARAM::bias_layer5, conv_4_out, conv_5_out, numReps);
+#ifdef DEBUG
+	cout << "layer5 calculation completes. conv_5_out size: " << conv_5_out.size() << endl;
+#endif
+
+	hls::stream<ap_uint<CONV_6_OUT_BIT* CONV_6_OFM_CH>>  conv_6_out("conv_6_out");
+	deconv522<CONV_6_IFM_ROW, CONV_6_IFM_COL, CONV_6_IFM_CH, CONV_6_OFM_CH, CONV_6_SIMD, CONV_6_PE, CONV_6_IN_BIT, CONV_6_OUT_BIT, CONV_6_W_BIT, CONV_6_W_TILES>
+		(PARAM::weights_layer6, PARAM::bias_layer6, conv_5_out, conv_6_out, numReps);
+#ifdef DEBUG
+	cout << "layer6 calculation completes. conv_6_out size: " << conv_6_out.size() << endl;
+#endif
+
+
+	deconv522<CONV_7_IFM_ROW, CONV_7_IFM_COL, CONV_7_IFM_CH, CONV_7_OFM_CH, CONV_7_SIMD, CONV_7_PE, CONV_7_IN_BIT, CONV_7_OUT_BIT, CONV_7_W_BIT, CONV_7_W_TILES>
+		(PARAM::weights_layer7, PARAM::bias_layer7, conv_6_out, out, numReps);
+#ifdef DEBUG
+	cout << "layer7 calculation completes. conv_7_out size: " << out.size() << endl;
+#endif
+}
+
+
+
 //void Testbench_conv_nonsquare(stream<ap_uint<IFM_Channels1*INPUT_PRECISION> > & in, stream<ap_uint<OFM_Channels1*ACTIVATION_PRECISION> > & out, unsigned int numReps){
 //#pragma HLS DATAFLOW
 ////	ConvLayer_Batch<KERNEL_DIM_X, IFM_Channels1, IFMDim1_x, OFM_Channels1, OFMDim1_x, SIMD1, PE1, Slice<ap_uint<INPUT_PRECISION> >, Slice<ap_int<16> >, Identity >(in, out, PARAM::weights, PassThroughActivation<ap_uint<16>>(), numReps, ap_resource_dsp());
@@ -309,3 +375,5 @@ void deconv2d_layer4(stream<ap_uint<CONV_4_IFM_CH* CONV_4_IN_BIT> >& in, stream<
 //  StreamingDataWidthConverter_Batch<PE1*ACTIVATION_PRECISION, OFM_Channels1*ACTIVATION_PRECISION, OFMDim1_x * OFMDim1_y * (OFM_Channels1 / PE1)>(mvOut, out, numReps);
 //
 //}
+
+

@@ -116,7 +116,7 @@ template<int MAX_IMAGE,
 
 						out[n][x][y][h] = tmp;
 					}
-					if(y % (OFMDim_y / 16) == 0){
+					if(y % (OFMDim_y / 8) == 0){
 						std::cout << y * OFMDim_x << "/" << OFMDim_x * OFMDim_y <<" pixel complete. " << std::endl;
 					}
 			}
