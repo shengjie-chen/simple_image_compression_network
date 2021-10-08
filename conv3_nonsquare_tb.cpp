@@ -527,8 +527,8 @@ void verify_conv2d(
 	int n, 
 	FixedPointWeights<SIMD, ap_int<W_BIT>, PE, TILE> const& weights_layerx,
 	FixedPointWeights<1, ap_int<8>, 1, OFM_Channels> const& bias_layerx,
-	ap_uint<IN_BIT> input[IMAGE_NUM][IFMDim1_x][IFMDim1_y][IFM_Channels],
-	ap_uint<OUT_BIT> output[IMAGE_NUM][OFMDim1_x][OFMDim1_y][OFM_Channels]) 
+	ap_int<IN_BIT> input[IMAGE_NUM][IFMDim1_x][IFMDim1_y][IFM_Channels],
+	ap_int<OUT_BIT> output[IMAGE_NUM][OFMDim1_x][OFMDim1_y][OFM_Channels]) 
 {
 
 	// initialize the weights
@@ -708,7 +708,7 @@ int test_eight_layers_net() {
 		BIAS[i] = PARAM::bias_layer0.weights(i)[0][0];
 	}
 
-	static ap_uint<CONV_0_OUT_BIT> TEST_0[MAX_IMAGES][CONV_0_OFM_ROW][CONV_0_OFM_COL][CONV_0_OFM_CH];
+	static ap_int<CONV_0_OUT_BIT> TEST_0[MAX_IMAGES][CONV_0_OFM_ROW][CONV_0_OFM_COL][CONV_0_OFM_CH];
 
 
 	std::cout << "layer0 verification computation begin. " << std::endl;
@@ -739,7 +739,7 @@ int test_eight_layers_net() {
 
 
 	/*************************************************Layer 1******************************************************/
-	static ap_uint<CONV_1_OUT_BIT> TEST_1[MAX_IMAGES][CONV_1_OFM_ROW][CONV_1_OFM_COL][CONV_1_OFM_CH];
+	static ap_int<CONV_1_OUT_BIT> TEST_1[MAX_IMAGES][CONV_1_OFM_ROW][CONV_1_OFM_COL][CONV_1_OFM_CH];
 
 	verify_conv2d< CONV_1_K, CONV_1_SIMD, CONV_1_PE, CONV_1_W_BIT, CONV_1_IFM_CH, CONV_1_OFM_CH,
 		CONV_1_IFM_ROW, CONV_1_IFM_COL, CONV_1_OFM_ROW, CONV_1_OFM_COL, CONV_1_S, CONV_1_P,
@@ -749,7 +749,7 @@ int test_eight_layers_net() {
 
 	/*************************************************Layer 2******************************************************/
 
-	static ap_uint<CONV_2_OUT_BIT> TEST_2[MAX_IMAGES][CONV_2_OFM_ROW][CONV_2_OFM_COL][CONV_2_OFM_CH];
+	static ap_int<CONV_2_OUT_BIT> TEST_2[MAX_IMAGES][CONV_2_OFM_ROW][CONV_2_OFM_COL][CONV_2_OFM_CH];
 
 	verify_conv2d< CONV_2_K, CONV_2_SIMD, CONV_2_PE, CONV_2_W_BIT, CONV_2_IFM_CH, CONV_2_OFM_CH,
 		CONV_2_IFM_ROW, CONV_2_IFM_COL, CONV_2_OFM_ROW, CONV_2_OFM_COL, CONV_2_S, CONV_2_P,
@@ -759,7 +759,7 @@ int test_eight_layers_net() {
 
 	/*************************************************Layer 3******************************************************/
 
-	static ap_uint<CONV_3_OUT_BIT> TEST_3[MAX_IMAGES][CONV_3_OFM_ROW][CONV_3_OFM_COL][CONV_3_OFM_CH];
+	static ap_int<CONV_3_OUT_BIT> TEST_3[MAX_IMAGES][CONV_3_OFM_ROW][CONV_3_OFM_COL][CONV_3_OFM_CH];
 
 	verify_conv2d< CONV_3_K, CONV_3_SIMD, CONV_3_PE, CONV_3_W_BIT, CONV_3_IFM_CH, CONV_3_OFM_CH,
 		CONV_3_IFM_ROW, CONV_3_IFM_COL, CONV_3_OFM_ROW, CONV_3_OFM_COL, CONV_3_S, CONV_3_P,
@@ -771,7 +771,7 @@ int test_eight_layers_net() {
 
 	/*************************************************Layer 4******************************************************/
 
-	static ap_uint<CONV_4_OUT_BIT> TEST_4[MAX_IMAGES][CONV_4_OFM_ROW][CONV_4_OFM_COL][CONV_4_OFM_CH];
+	static ap_int<CONV_4_OUT_BIT> TEST_4[MAX_IMAGES][CONV_4_OFM_ROW][CONV_4_OFM_COL][CONV_4_OFM_CH];
 
 	verify_conv2d< CONV_4_K, CONV_4_SIMD, CONV_4_PE, CONV_4_W_BIT, CONV_4_IFM_CH, CONV_4_OFM_CH,
 		CONV_4_IFM_ROW, CONV_4_IFM_COL, CONV_4_OFM_ROW, CONV_4_OFM_COL, CONV_4_S, CONV_4_P,
@@ -782,7 +782,7 @@ int test_eight_layers_net() {
 
 	/*************************************************Layer 5******************************************************/
 
-	static ap_uint<CONV_5_OUT_BIT> TEST_5[MAX_IMAGES][CONV_5_OFM_ROW][CONV_5_OFM_COL][CONV_5_OFM_CH];
+	static ap_int<CONV_5_OUT_BIT> TEST_5[MAX_IMAGES][CONV_5_OFM_ROW][CONV_5_OFM_COL][CONV_5_OFM_CH];
 
 	verify_conv2d< CONV_5_K, CONV_5_SIMD, CONV_5_PE, CONV_5_W_BIT, CONV_5_IFM_CH, CONV_5_OFM_CH,
 		CONV_5_IFM_ROW, CONV_5_IFM_COL, CONV_5_OFM_ROW, CONV_5_OFM_COL, CONV_5_S, CONV_5_P,
@@ -792,7 +792,7 @@ int test_eight_layers_net() {
 
 	/*************************************************Layer 6******************************************************/
 
-	static ap_uint<CONV_6_OUT_BIT> TEST_6[MAX_IMAGES][CONV_6_OFM_ROW][CONV_6_OFM_COL][CONV_6_OFM_CH];
+	static ap_int<CONV_6_OUT_BIT> TEST_6[MAX_IMAGES][CONV_6_OFM_ROW][CONV_6_OFM_COL][CONV_6_OFM_CH];
 
 	verify_conv2d< CONV_6_K, CONV_6_SIMD, CONV_6_PE, CONV_6_W_BIT, CONV_6_IFM_CH, CONV_6_OFM_CH,
 		CONV_6_IFM_ROW, CONV_6_IFM_COL, CONV_6_OFM_ROW, CONV_6_OFM_COL, CONV_6_S, CONV_6_P,
@@ -802,7 +802,7 @@ int test_eight_layers_net() {
 
 	/*************************************************Layer 7******************************************************/
 
-	static ap_uint<CONV_7_OUT_BIT> TEST_7[MAX_IMAGES][CONV_7_OFM_ROW][CONV_7_OFM_COL][CONV_7_OFM_CH];
+	static ap_int<CONV_7_OUT_BIT> TEST_7[MAX_IMAGES][CONV_7_OFM_ROW][CONV_7_OFM_COL][CONV_7_OFM_CH];
 
 	verify_conv2d< CONV_7_K, CONV_7_SIMD, CONV_7_PE, CONV_7_W_BIT, CONV_7_IFM_CH, CONV_7_OFM_CH,
 		CONV_7_IFM_ROW, CONV_7_IFM_COL, CONV_7_OFM_ROW, CONV_7_OFM_COL, CONV_7_S, CONV_7_P,
@@ -816,7 +816,7 @@ int test_eight_layers_net() {
 
 
 	//	Testbench_conv_nonsquare(input_stream, output_stream, MAX_IMAGES);
-	conv2d_layer0(input_stream, output_stream, MAX_IMAGES);
+	eight_layers_net(input_stream, output_stream, MAX_IMAGES);
 	std::cout << "Hardware computation complete.  " << std::endl;
 
 	std::cout << "Output image size is " << CONV_7_OFM_ROW << " X " << CONV_7_OFM_COL << " X " << CONV_7_OFM_CH << std::endl;
