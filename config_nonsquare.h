@@ -124,7 +124,7 @@
 #define CONV_7_IFM_CH 128 
 #define CONV_7_IFM_ROW 384 
 #define CONV_7_IFM_COL 256 
-#define CONV_7_OFM_CH 128 
+#define CONV_7_OFM_CH 3 
 #define CONV_7_OFM_ROW 768 
 #define CONV_7_OFM_COL 512 
 #define CONV_7_SIMD 3 
