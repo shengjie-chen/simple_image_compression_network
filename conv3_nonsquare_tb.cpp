@@ -762,8 +762,8 @@ int test_eight_layers_net() {
 	}
 	std::cout << "layer0 verification computation complete. " << std::endl;
 
-	std::cout << TEST_0 << std::endl;
-	std::cout << TEST_0[0][0][0][0] << std::endl;
+//	std::cout << TEST_0 << std::endl;
+//	std::cout << TEST_0[0][0][0][0] << std::endl;
 
 	/*************************************************Layer 1******************************************************/
 	 ap_int<CONV_1_OUT_BIT> TEST_1[MAX_IMAGES][CONV_1_OFM_ROW][CONV_1_OFM_COL][CONV_1_OFM_CH];
@@ -1001,8 +1001,8 @@ int test_eight_layers_net() {
 int main(){
 //	return test_conv2d_layer0();
 	//return test_deconv2d_layer4();
-//	return test_eight_layers_net();
-	return debug_verify_conv2d();
+	return test_eight_layers_net();
+//	return debug_verify_conv2d();
 }
 
 

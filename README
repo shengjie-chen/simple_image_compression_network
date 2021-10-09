@@ -3,3 +3,7 @@
 xczu7ev-ffvc11456-2-e
 
 E:\Xilinx\Vivado\2020.1\include
+
+error: SIGSEGV
+ulimit -s //View the default stack size of the linux
+ulimit -s 102400 //change stack size to 100M
