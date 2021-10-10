@@ -696,7 +696,7 @@ template<
 	}
 
 
-	//padding
+	//padding  deconv and set stride is 2
 	ap_uint<IN_BIT> input_padding[IMAGE_NUM][2 * IFMDim1_x + 2 * PADDING][2 * IFMDim1_y + 2 * PADDING][IFM_Channels];
 
 	for (unsigned int n_image = 0; n_image < IMAGE_NUM; n_image++) {
@@ -723,7 +723,7 @@ template<
 	// compute con2d
 	conv_nonsquare<IMAGE_NUM, 2 * IFMDim1_x + 2 * PADDING, 2 * IFMDim1_y + 2 * PADDING,
 		OFMDim1_x, OFMDim1_y, IFM_Channels, OFM_Channels, CONV_K,
-		CONV_K, STRIDE, STRIDE, ap_uint<IN_BIT>, ap_int<OUT_BIT>, ap_int<W_BIT> >
+		CONV_K, 1, 1, ap_uint<IN_BIT>, ap_int<OUT_BIT>, ap_int<W_BIT> >
 		(input_padding, W, output);
 
 
