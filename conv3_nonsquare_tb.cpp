@@ -1124,8 +1124,8 @@ int test_eight_layers_net() {
 int main(){
 //	return test_conv2d_layer0();
 	//return test_deconv2d_layer4();
-	//return test_eight_layers_net();
-	return debug_verify_deconv2d();
+	return test_eight_layers_net();
+	//return debug_verify_deconv2d();
 }
 
 
