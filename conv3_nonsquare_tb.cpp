@@ -710,7 +710,7 @@ template<
 				else {
 					for (unsigned int channel = 0; channel < IFM_Channels; channel++)
 					{
-						input_padding[n_image][ox][oy][channel] = input[n_image][(ox - 1 - PADDING) / 2][(oy - 1 - PADDING) / 2][channel];
+						input_padding[n_image][ox][oy][channel] = input[n_image][(ox - PADDING) / 2][(oy - PADDING) / 2][channel];
 					}
 				}
 			}
@@ -771,7 +771,7 @@ int debug_verify_deconv2d() {
 	verify_deconv2d< CONV_7_K, CONV_7_SIMD, CONV_7_PE, CONV_7_W_BIT, CONV_7_IFM_CH, CONV_7_OFM_CH,
 		CONV_7_IFM_ROW, CONV_7_IFM_COL, CONV_7_OFM_ROW, CONV_7_OFM_COL, CONV_7_S, CONV_7_P,
 		CONV_7_IN_BIT, CONV_7_W_TILES, CONV_7_OUT_BIT, MAX_IMAGES>
-		(0, PARAM::weights_layer7, PARAM::bias_layer7, IMAGE, TEST_7);
+		(7, PARAM::weights_layer7, PARAM::bias_layer7, IMAGE, TEST_7);
 
 	return 0;
 }
