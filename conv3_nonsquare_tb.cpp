@@ -284,16 +284,19 @@ void eight_layers_net(stream<ap_uint<CONV_0_IFM_CH* CONV_0_IN_BIT> >& in, stream
 //
 //}
 //
-////template<	unsigned int InputDim_x,
-////	unsigned int InputDim_y,
-////	unsigned int InNumChannels,
-////	unsigned int OutNumChannels,
-////	unsigned int SIMD,
-////	unsigned int PE,
-////	typename TWW,
-////	typename TBB>
-////	void deconv522(TWW const& weights, TBB const& bias, stream<ap_uint<InNumChannels* CONV_0_IN_BIT> >& in, stream<ap_uint<OutNumChannels* CONV_0_IN_BIT> >& out, unsigned int numReps);
-//
+
+
+
+//template<	unsigned int InputDim_x,
+//	unsigned int InputDim_y,
+//	unsigned int InNumChannels,
+//	unsigned int OutNumChannels,
+//	unsigned int SIMD,
+//	unsigned int PE,
+//	typename TWW,
+//	typename TBB>
+//	void deconv522(TWW const& weights, TBB const& bias, stream<ap_uint<InNumChannels* CONV_0_IN_BIT> >& in, stream<ap_uint<OutNumChannels* CONV_0_IN_BIT> >& out, unsigned int numReps);
+
 //int test_deconv2d_layer4()
 //{
 //	//unsigned int N = 1;
@@ -626,7 +629,127 @@ void verify_conv2d(
 }
 
 
-int debug_verify_conv2d() {
+template<
+	unsigned CONV_K,
+	unsigned SIMD,
+	unsigned PE,
+	unsigned W_BIT,
+	unsigned IFM_Channels,
+	unsigned OFM_Channels,
+	unsigned IFMDim1_x,
+	unsigned IFMDim1_y,
+	unsigned OFMDim1_x,
+	unsigned OFMDim1_y,
+	unsigned STRIDE,
+	unsigned PADDING,
+	unsigned IN_BIT,
+	unsigned TILE,
+	unsigned OUT_BIT,
+	unsigned IMAGE_NUM>
+	void verify_deconv2d(
+		int n,
+		FixedPointWeights<SIMD, ap_int<W_BIT>, PE, TILE> const& weights_layerx,
+		FixedPointWeights<1, ap_int<8>, 1, OFM_Channels> const& bias_layerx,
+		ap_int<IN_BIT> const input[IMAGE_NUM][IFMDim1_x][IFMDim1_y][IFM_Channels],
+		ap_int<OUT_BIT> output[IMAGE_NUM][OFMDim1_x][OFMDim1_y][OFM_Channels])
+{
+
+	// initialize the weights
+	ap_int<W_BIT> W[OFM_Channels][CONV_K][CONV_K][IFM_Channels];
+	constexpr int TX = (IFM_Channels * CONV_K * CONV_K) / SIMD;
+	constexpr int TY = OFM_Channels / PE;
+	unsigned int kx = 0;
+	unsigned int ky = 0;
+	unsigned int chan_count = 0;
+
+	for (int pe = 0; pe < PE; pe++) {
+		unsigned int out_chan_count = pe;
+		for (unsigned int oy = 0; oy < TY; oy++) {
+			for (unsigned int ox = 0; ox < TX; ox++) {
+				for (int simd = 0; simd < SIMD; simd++) {
+					W[out_chan_count][kx][ky][chan_count] = weights_layerx.weights(oy * TX + ox)[pe][simd];
+					chan_count++;
+					if (chan_count == IFM_Channels) {
+						chan_count = 0;
+						kx++;
+						if (kx == CONV_K) {
+							kx = 0;
+							ky++;
+							if (ky == CONV_K) {
+								ky = 0;
+								out_chan_count += PE;
+								if (out_chan_count == OFM_Channels) {
+									out_chan_count = 0;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// initial bias
+	ap_int<OUT_BIT> BIAS[OFM_Channels];
+	for (int i = 0; i < OFM_Channels; i++) {
+		BIAS[i] = bias_layerx.weights(i)[0][0];
+	}
+
+
+	//padding
+	ap_uint<IN_BIT> input_padding[IMAGE_NUM][2 * IFMDim1_x + 2 * PADDING][2 * IFMDim1_y + 2 * PADDING][IFM_Channels];
+
+	for (unsigned int n_image = 0; n_image < IMAGE_NUM; n_image++) {
+		for (unsigned int oy = 0; oy < 2 * IFMDim1_y + 2 * PADDING; oy++) {
+			for (unsigned int ox = 0; ox < 2 * IFMDim1_x + 2 * PADDING; ox++) {
+				if (((ox < PADDING) | (ox >= IFMDim1_x * 2 + PADDING)) | ((oy < PADDING) | (oy >= IFMDim1_y * 2 + PADDING)) | ((ox + 1 - PADDING) % 2 == 0) | ((oy + 1 - PADDING) % 2 == 0)) {
+					for (unsigned int channel = 0; channel < IFM_Channels; channel++) {
+						input_padding[n_image][ox][oy][channel] = 0;
+					}
+				}
+				else {
+					for (unsigned int channel = 0; channel < IFM_Channels; channel++)
+					{
+						input_padding[n_image][ox][oy][channel] = input[n_image][(ox - 1 - PADDING) / 2][(oy - 1 - PADDING) / 2][channel];
+					}
+				}
+			}
+		}
+	}
+
+
+
+	std::cout << "layer" << n << " verification computation begin. " << std::endl;
+	// compute con2d
+	conv_nonsquare<IMAGE_NUM, 2 * IFMDim1_x + 2 * PADDING, 2 * IFMDim1_y + 2 * PADDING,
+		OFMDim1_x, OFMDim1_y, IFM_Channels, OFM_Channels, CONV_K,
+		CONV_K, STRIDE, STRIDE, ap_uint<IN_BIT>, ap_int<OUT_BIT>, ap_int<W_BIT> >
+		(input_padding, W, output);
+
+
+
+
+	// get finial result, add bias
+	for (int img_num = 0; img_num < IMAGE_NUM; img_num++) {
+		for (int y = 0; y < OFMDim1_y; y++) {
+			for (int x = 0; x < OFMDim1_x; x++) {
+				for (int channel = 0; channel < OFM_Channels; channel++) {
+					output[img_num][x][y][channel] += BIAS[channel];
+					if (output[img_num][x][y][channel] < 0) {
+						output[img_num][x][y][channel] = 0;
+					}
+				}
+			}
+		}
+	}
+	std::cout << "layer" << n << " verification computation complete. " << std::endl;
+
+
+}
+
+
+
+int debug_verify_deconv2d() {
 	std::cout << "Input image size is " << CONV_7_IFM_ROW << " X " << CONV_7_IFM_COL << " X " << CONV_7_IFM_CH << std::endl;
 
 
@@ -645,7 +768,7 @@ int debug_verify_conv2d() {
 
 	ap_int<CONV_7_OUT_BIT> TEST_7[MAX_IMAGES][CONV_7_OFM_ROW][CONV_7_OFM_COL][CONV_7_OFM_CH];
 
-	verify_conv2d< CONV_7_K, CONV_7_SIMD, CONV_7_PE, CONV_7_W_BIT, CONV_7_IFM_CH, CONV_7_OFM_CH,
+	verify_deconv2d< CONV_7_K, CONV_7_SIMD, CONV_7_PE, CONV_7_W_BIT, CONV_7_IFM_CH, CONV_7_OFM_CH,
 		CONV_7_IFM_ROW, CONV_7_IFM_COL, CONV_7_OFM_ROW, CONV_7_OFM_COL, CONV_7_S, CONV_7_P,
 		CONV_7_IN_BIT, CONV_7_W_TILES, CONV_7_OUT_BIT, MAX_IMAGES>
 		(0, PARAM::weights_layer7, PARAM::bias_layer7, IMAGE, TEST_7);
@@ -890,7 +1013,7 @@ int test_eight_layers_net() {
 
 	 ap_int<CONV_4_OUT_BIT> TEST_4[MAX_IMAGES][CONV_4_OFM_ROW][CONV_4_OFM_COL][CONV_4_OFM_CH];
 
-	verify_conv2d< CONV_4_K, CONV_4_SIMD, CONV_4_PE, CONV_4_W_BIT, CONV_4_IFM_CH, CONV_4_OFM_CH,
+	verify_deconv2d< CONV_4_K, CONV_4_SIMD, CONV_4_PE, CONV_4_W_BIT, CONV_4_IFM_CH, CONV_4_OFM_CH,
 		CONV_4_IFM_ROW, CONV_4_IFM_COL, CONV_4_OFM_ROW, CONV_4_OFM_COL, CONV_4_S, CONV_4_P,
 		CONV_4_IN_BIT, CONV_4_W_TILES, CONV_4_OUT_BIT, MAX_IMAGES>
 		(4, PARAM::weights_layer4, PARAM::bias_layer4, TEST_3, TEST_4);
@@ -901,7 +1024,7 @@ int test_eight_layers_net() {
 
 	 ap_int<CONV_5_OUT_BIT> TEST_5[MAX_IMAGES][CONV_5_OFM_ROW][CONV_5_OFM_COL][CONV_5_OFM_CH];
 
-	verify_conv2d< CONV_5_K, CONV_5_SIMD, CONV_5_PE, CONV_5_W_BIT, CONV_5_IFM_CH, CONV_5_OFM_CH,
+	verify_deconv2d< CONV_5_K, CONV_5_SIMD, CONV_5_PE, CONV_5_W_BIT, CONV_5_IFM_CH, CONV_5_OFM_CH,
 		CONV_5_IFM_ROW, CONV_5_IFM_COL, CONV_5_OFM_ROW, CONV_5_OFM_COL, CONV_5_S, CONV_5_P,
 		CONV_5_IN_BIT, CONV_5_W_TILES, CONV_5_OUT_BIT, MAX_IMAGES>
 		(5, PARAM::weights_layer5, PARAM::bias_layer5, TEST_4, TEST_5);
@@ -911,7 +1034,7 @@ int test_eight_layers_net() {
 
 	 ap_int<CONV_6_OUT_BIT> TEST_6[MAX_IMAGES][CONV_6_OFM_ROW][CONV_6_OFM_COL][CONV_6_OFM_CH];
 
-	verify_conv2d< CONV_6_K, CONV_6_SIMD, CONV_6_PE, CONV_6_W_BIT, CONV_6_IFM_CH, CONV_6_OFM_CH,
+	verify_deconv2d< CONV_6_K, CONV_6_SIMD, CONV_6_PE, CONV_6_W_BIT, CONV_6_IFM_CH, CONV_6_OFM_CH,
 		CONV_6_IFM_ROW, CONV_6_IFM_COL, CONV_6_OFM_ROW, CONV_6_OFM_COL, CONV_6_S, CONV_6_P,
 		CONV_6_IN_BIT, CONV_6_W_TILES, CONV_6_OUT_BIT, MAX_IMAGES>
 		(6, PARAM::weights_layer6, PARAM::bias_layer6, TEST_5, TEST_6);
@@ -921,7 +1044,7 @@ int test_eight_layers_net() {
 
 	 ap_int<CONV_7_OUT_BIT> TEST_7[MAX_IMAGES][CONV_7_OFM_ROW][CONV_7_OFM_COL][CONV_7_OFM_CH];
 
-	verify_conv2d< CONV_7_K, CONV_7_SIMD, CONV_7_PE, CONV_7_W_BIT, CONV_7_IFM_CH, CONV_7_OFM_CH,
+	verify_deconv2d< CONV_7_K, CONV_7_SIMD, CONV_7_PE, CONV_7_W_BIT, CONV_7_IFM_CH, CONV_7_OFM_CH,
 		CONV_7_IFM_ROW, CONV_7_IFM_COL, CONV_7_OFM_ROW, CONV_7_OFM_COL, CONV_7_S, CONV_7_P,
 		CONV_7_IN_BIT, CONV_7_W_TILES, CONV_7_OUT_BIT, MAX_IMAGES>
 		(7, PARAM::weights_layer7, PARAM::bias_layer7, TEST_6, TEST_7);
@@ -1002,7 +1125,7 @@ int main(){
 //	return test_conv2d_layer0();
 	//return test_deconv2d_layer4();
 	//return test_eight_layers_net();
-	return debug_verify_conv2d();
+	return debug_verify_deconv2d();
 }
 
 
