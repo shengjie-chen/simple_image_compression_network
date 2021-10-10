@@ -627,28 +627,28 @@ void verify_conv2d(
 
 
 int debug_verify_conv2d() {
-	std::cout << "Input image size is " << CONV_0_IFM_ROW << " X " << CONV_0_IFM_COL << " X " << CONV_0_IFM_CH << std::endl;
+	std::cout << "Input image size is " << CONV_7_IFM_ROW << " X " << CONV_7_IFM_COL << " X " << CONV_7_IFM_CH << std::endl;
 
 
 	//	initialize the input image
-	ap_int<CONV_0_IN_BIT> IMAGE[MAX_IMAGES][CONV_0_IFM_ROW][CONV_0_IFM_COL][CONV_0_IFM_CH];
+	ap_int<CONV_7_IN_BIT> IMAGE[MAX_IMAGES][CONV_7_IFM_ROW][CONV_7_IFM_COL][CONV_7_IFM_CH];
 	for (unsigned int n_image = 0; n_image < MAX_IMAGES; n_image++) {
-		for (unsigned int oy = 0; oy < CONV_0_IFM_COL; oy++) {
-			for (unsigned int ox = 0; ox < CONV_0_IFM_ROW; ox++) {
-				for (unsigned int channel = 0; channel < CONV_0_IFM_CH; channel++) {
-					ap_uint<CONV_0_IN_BIT> input = (ap_uint<CONV_0_IN_BIT>)(1);
+		for (unsigned int oy = 0; oy < CONV_7_IFM_COL; oy++) {
+			for (unsigned int ox = 0; ox < CONV_7_IFM_ROW; ox++) {
+				for (unsigned int channel = 0; channel < CONV_7_IFM_CH; channel++) {
+					ap_uint<CONV_7_IN_BIT> input = (ap_uint<CONV_7_IN_BIT>)(1);
 					IMAGE[n_image][ox][oy][channel] = input;
 				}
 			}
 		}
 	}
 
-	ap_int<CONV_0_OUT_BIT> TEST_0[MAX_IMAGES][CONV_0_OFM_ROW][CONV_0_OFM_COL][CONV_0_OFM_CH];
+	ap_int<CONV_7_OUT_BIT> TEST_7[MAX_IMAGES][CONV_7_OFM_ROW][CONV_7_OFM_COL][CONV_7_OFM_CH];
 
-	verify_conv2d< CONV_0_K, CONV_0_SIMD, CONV_0_PE, CONV_0_W_BIT, CONV_0_IFM_CH, CONV_0_OFM_CH,
-		CONV_0_IFM_ROW, CONV_0_IFM_COL, CONV_0_OFM_ROW, CONV_0_OFM_COL, CONV_0_S, CONV_0_P,
-		CONV_0_IN_BIT, CONV_0_W_TILES, CONV_0_OUT_BIT, MAX_IMAGES>
-		(0, PARAM::weights_layer0, PARAM::bias_layer0, IMAGE, TEST_0);
+	verify_conv2d< CONV_7_K, CONV_7_SIMD, CONV_7_PE, CONV_7_W_BIT, CONV_7_IFM_CH, CONV_7_OFM_CH,
+		CONV_7_IFM_ROW, CONV_7_IFM_COL, CONV_7_OFM_ROW, CONV_7_OFM_COL, CONV_7_S, CONV_7_P,
+		CONV_7_IN_BIT, CONV_7_W_TILES, CONV_7_OUT_BIT, MAX_IMAGES>
+		(0, PARAM::weights_layer7, PARAM::bias_layer7, IMAGE, TEST_7);
 
 	return 0;
 }
@@ -1001,8 +1001,8 @@ int test_eight_layers_net() {
 int main(){
 //	return test_conv2d_layer0();
 	//return test_deconv2d_layer4();
-	return test_eight_layers_net();
-//	return debug_verify_conv2d();
+	//return test_eight_layers_net();
+	return debug_verify_conv2d();
 }
 
 

@@ -127,8 +127,8 @@
 #define CONV_7_OFM_CH 3 
 #define CONV_7_OFM_ROW 768 
 #define CONV_7_OFM_COL 512 
-#define CONV_7_SIMD 3 
-#define CONV_7_PE 8 
+#define CONV_7_SIMD 8 
+#define CONV_7_PE 3 
 #define CONV_7_IN_BIT 8 
 #define CONV_7_OUT_BIT 8 
 #define CONV_7_W_BIT 4 
