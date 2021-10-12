@@ -815,6 +815,12 @@ int test_eight_layers_net() {
 		}
 	}
 	
+
+	stream<ap_uint<CONV_7_OFM_CH* CONV_7_OUT_BIT> > output_stream("output_stream");
+	std::cout << "Hardware computation begin.  " << std::endl;
+	eight_layers_net(input_stream, output_stream, MAX_IMAGES);
+	std::cout << "Hardware computation complete.  " << std::endl;
+
 	/*************************************************Layer 0******************************************************/
 	// initialize the weights
 	ap_int<CONV_0_W_BIT> W0[CONV_0_OFM_CH][CONV_0_K][CONV_0_K][CONV_0_IFM_CH];
@@ -1052,12 +1058,9 @@ int test_eight_layers_net() {
 
 
 
-	stream<ap_uint<CONV_7_OFM_CH* CONV_7_OUT_BIT> > output_stream("output_stream");
 
 
-	//	Testbench_conv_nonsquare(input_stream, output_stream, MAX_IMAGES);
-	eight_layers_net(input_stream, output_stream, MAX_IMAGES);
-	std::cout << "Hardware computation complete.  " << std::endl;
+
 
 	std::cout << "Output image size is " << CONV_7_OFM_ROW << " X " << CONV_7_OFM_COL << " X " << CONV_7_OFM_CH << std::endl;
 

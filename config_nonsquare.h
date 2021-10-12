@@ -59,8 +59,8 @@
 #define CONV_3_OFM_CH 192 
 #define CONV_3_OFM_ROW 48 
 #define CONV_3_OFM_COL 32 
-#define CONV_3_SIMD 12 
-#define CONV_3_PE 16 
+#define CONV_3_SIMD 8
+#define CONV_3_PE 24
 #define CONV_3_IN_BIT 8 
 #define CONV_3_OUT_BIT 8 
 #define CONV_3_W_BIT 4 

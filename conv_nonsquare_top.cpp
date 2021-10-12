@@ -39,6 +39,7 @@
  *
  *****************************************************************************/
 #define AP_INT_MAX_W 16384
+#define DEBUG
 #include <hls_stream.h>
 using namespace hls;
 #include "ap_int.h"
