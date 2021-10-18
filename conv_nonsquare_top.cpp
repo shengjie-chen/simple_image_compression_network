@@ -39,7 +39,7 @@
  *
  *****************************************************************************/
 #define AP_INT_MAX_W 16384
-#define DEBUG
+//#define DEBUG
 #include <hls_stream.h>
 using namespace hls;
 #include "ap_int.h"
@@ -292,7 +292,8 @@ void deconv2d_layer4(stream<ap_uint<CONV_4_IFM_CH* CONV_4_IN_BIT> >& in, stream<
 
 
 
-void eight_layers_net(stream<ap_uint<CONV_0_IFM_CH* CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_7_OFM_CH* CONV_7_OUT_BIT> > & out, unsigned int numReps) {
+void eight_layers_net(stream<ap_uint<CONV_0_IFM_CH* CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_7_OFM_CH* CONV_7_OUT_BIT> > & out, const unsigned int numReps) {
+#pragma HLS DATAFLOW
 
 	hls::stream<ap_uint<CONV_0_OUT_BIT* CONV_0_OFM_CH>>  conv_0_out("conv_0_out");
 	conv2d< CONV_0_K, CONV_0_K, CONV_0_SIMD, CONV_0_PE,
