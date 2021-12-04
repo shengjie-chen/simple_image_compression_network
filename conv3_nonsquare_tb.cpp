@@ -59,18 +59,34 @@
 using namespace hls;
 using namespace std;
 
+// axi data
+struct my_ap_axis {
+    ap_uint<64> data;
+    ap_uint<1> last;
+    ap_uint<8> keep;
+};
 
+template <unsigned NumLines>
+void AddLast(stream<ap_uint<64>> &in, stream<my_ap_axis> &out,
+             const unsigned reps = 1) {
+    my_ap_axis temp;
+    temp.keep = 0xff;
 
+    for (unsigned i = 0; i < reps * NumLines - 1; i++) {
+        temp.data = in.read();
+        temp.last = 0;
+        out.write(temp);
+    }
+
+    temp.data = in.read();
+    temp.last = 1;
+    out.write(temp);
+}
 
 #define MAX_IMAGES 1
-//void Testbench_conv_nonsquare(stream<ap_uint<CONV_0_IFM_CH*CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_0_OFM_CH*CONV_0_OUT_BIT> > & out, unsigned int numReps);
 
-void conv2d_layer0(stream<ap_uint<CONV_0_IFM_CH*CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_0_OFM_CH*CONV_0_OUT_BIT> > & out, unsigned int numReps);
 
-void CONV_0_P2(stream<ap_uint<CONV_0_IFM_CH*CONV_0_IN_BIT> > & in, stream<ap_uint<CONV_0_IFM_CH*CONV_0_IN_BIT> > & out);
-
-void encoder_net(stream<ap_uint<CONV_0_IFM_CH* CONV_0_IN_BIT> >& in, stream<ap_uint<CONV_3_OFM_CH* CONV_3_OUT_BIT> >& out, unsigned int numReps);
-
+void encoder_net(stream<my_ap_axis > & in, stream<my_ap_axis > & out, const unsigned int numReps);
 
 
 template<
@@ -99,7 +115,7 @@ void verify_conv2d(
 {
 
 	// initialize the weights
-		ap_int<W_BIT> W[OFM_Channels][CONV_K][CONV_K][IFM_Channels];
+	ap_int<W_BIT> W[OFM_Channels][CONV_K][CONV_K][IFM_Channels];
 	constexpr int TX = (IFM_Channels * CONV_K * CONV_K) / SIMD;
 	constexpr int TY = OFM_Channels / PE;
 	unsigned int kx = 0;
@@ -233,9 +249,31 @@ int test_encoder_net() {
 	
 
 	stream<ap_uint<CONV_3_OFM_CH* CONV_3_OUT_BIT> > output_stream("output_stream");
+	
+	stream<ap_uint<CONV_0_IFM_CH* CONV_0_IN_BIT * 8>> in0;
+	StreamingDataWidthConverter_Batch<CONV_0_IFM_CH* CONV_0_IN_BIT, CONV_0_IFM_CH* CONV_0_IN_BIT * 8, CONV_0_IFM_ROW * CONV_0_IFM_COL>(input_stream, in0, MAX_IMAGES);
+
+	stream<ap_uint<64>> in1;
+	StreamingDataWidthConverter_Batch<CONV_0_IFM_CH* CONV_0_IN_BIT * 8, 64, CONV_0_IFM_ROW * CONV_0_IFM_COL / 8>(in0, in1, MAX_IMAGES);
+
+	my_ap_axis tmp;
+	stream<my_ap_axis >  in2;
+	for(unsigned int i = 0; i < int(CONV_0_IFM_ROW * CONV_0_IFM_COL * CONV_0_IFM_CH * CONV_0_IN_BIT / 64); i++){
+		tmp.data = in1.read();
+		in2.write(tmp);
+		}
+	stream<my_ap_axis >  out0;
+
 	std::cout << "Hardware computation begin.  " << std::endl;
-	encoder_net(input_stream, output_stream, MAX_IMAGES);
+	encoder_net(in2, out0, MAX_IMAGES);
 	std::cout << "Hardware computation complete.  " << std::endl;
+
+	stream<ap_uint<64>> out1("out1");
+	for(unsigned int i = 0; i < int(CONV_3_OFM_ROW* CONV_3_OFM_COL* CONV_3_OFM_CH* CONV_3_OUT_BIT/ 64); i++){
+		out1.write(out0.read().data);
+	}
+	StreamingDataWidthConverter_Batch<64, CONV_3_OFM_CH* CONV_3_OUT_BIT, CONV_3_OFM_ROW* CONV_3_OFM_COL* CONV_3_OFM_CH* CONV_3_OUT_BIT/ 64>(out1, output_stream, MAX_IMAGES);
+
 
 	/*************************************************Layer 0******************************************************/
 	// initialize the weights

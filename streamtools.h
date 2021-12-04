@@ -338,6 +338,47 @@ void FMPadding_Batch(stream<ap_uint<SIMD* In_t::width> > &in,
 }
 
 
+template <	unsigned IN_ROW,
+	unsigned IN_COL,
+	unsigned IN_CH,
+	unsigned IN_BIT,
+	unsigned P>
+	void padding_s2(
+		// 将每一数竖看成一个元素
+		stream<ap_uint<IN_CH* IN_BIT> >& in,
+		stream<ap_uint<IN_CH* IN_BIT> >& out,
+		const unsigned reps = 1)
+{
+	const unsigned OUT_ROW = IN_ROW + P;
+	const unsigned OUT_COL = IN_COL + P;
+
+	ap_uint<IN_CH* IN_BIT> temp_out = 0;
+
+	for (unsigned rep = 0; rep < reps; rep++) {
+
+		for (unsigned h = 0; h < P; h++) {
+			for (unsigned s = 0; s < OUT_COL; s++) {
+				out.write(0);
+			}
+		}
+
+		for (unsigned h = 0; h < IN_ROW; h++) {
+
+			for (unsigned s = 0; s < OUT_COL; s++) {
+#pragma HLS PIPELINE II=1
+
+				if (s < P) {
+					temp_out = 0;
+				}
+				else {
+					temp_out = in.read();
+				}
+				out.write(temp_out);
+			}
+		}
+	}
+}
+
 /**
  * \brief   FM Padding - Padds the input with zeroes for when the sliding window is
  *          centered on border pixels
@@ -405,6 +446,53 @@ void FMPadding_nonsquare(stream<ap_uint<SIMD* In_t::width> > &in,
 	}
 }
 
+template<	unsigned int OutputDim_x,
+	unsigned int OutputDim_y,
+	unsigned int Padding_x,
+	unsigned int Padding_y,
+	unsigned int NumChannels,
+	unsigned int SIMD,
+	typename In_t,
+	unsigned int PaddingStyle = 2>
+	void FMPadding_nonsquare_numrep(stream<ap_uint<SIMD* In_t::width> >& in,
+		stream<ap_uint<SIMD* In_t::width> >& out, const unsigned reps = 1) {
+
+
+	// Padding Up and Left
+	constexpr unsigned int PaddingUp = Padding_y / 2 + ((PaddingStyle == 2) ? ((Padding_y % 2) > 0) : 0);
+	constexpr unsigned int PaddingLeft = Padding_x / 2 + ((PaddingStyle == 2) ? ((Padding_x % 2) > 0) : 0);
+
+	// Padding Down and Right (might be 1 element more than up and left in case of odd padding)
+	constexpr unsigned int PaddingDown = Padding_y - PaddingUp;
+	constexpr unsigned int PaddingRight = Padding_x - PaddingLeft;
+	constexpr unsigned int Folding = NumChannels / SIMD;
+	ap_uint<SIMD* In_t::width> outData, inData;
+	for (unsigned int r = 0; r < reps; r++) {
+		for (unsigned int y = 0; y < OutputDim_y; y++) {
+			for (unsigned int x = 0; x < OutputDim_x; x++) {
+				for (unsigned int simd = 0; simd < Folding; simd++) {
+#pragma HLS PIPELINE II=1
+
+					// Padding Rows
+					if (y < PaddingUp || y >= (OutputDim_y - PaddingDown)) {
+						outData = 0;
+					}
+					// Padding Cols
+					else if (x < PaddingLeft || x >= (OutputDim_x - PaddingRight)) {
+						outData = 0;
+					}
+					// No Padding
+					else {
+						inData = in.read();
+						outData = inData;
+					}
+
+					out.write(outData);
+				}
+			}
+		}
+	}
+}
 /**
  * \brief   FM Padding Non Square - Padds the input of multiple frames with zeroes
  *          for when the sliding window is centered on border pixels
